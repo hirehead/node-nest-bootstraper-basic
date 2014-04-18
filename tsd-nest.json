@@ -6,16 +6,13 @@
     "bundle": "typings/tsd.d.ts",
     "installed": {
         "nest-async/nest-async.d.ts": {
-            "commit": "9594461756e86d8ccec589e7d84d130073d852fc"
-        },
-        "nest-container/nest-container.d.ts": {
-            "commit": "9594461756e86d8ccec589e7d84d130073d852fc"
+            "commit": "f0d544eb43810f1e775039e731b60d491706e836"
         },
         "nest/nest.d.ts": {
-            "commit": "9594461756e86d8ccec589e7d84d130073d852fc"
+            "commit": "f0d544eb43810f1e775039e731b60d491706e836"
         },
         "nest-bootstraper/nest-bootstraper.d.ts": {
-            "commit": "9594461756e86d8ccec589e7d84d130073d852fc"
+            "commit": "f0d544eb43810f1e775039e731b60d491706e836"
         }
     }
 }

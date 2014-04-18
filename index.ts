@@ -2,14 +2,10 @@
 
 class NestBasic implements Nest.INest {
 
-    q: Nest.IAsync;
-    container: Nest.IContainer;
-    data: {
-        [key: string]: any
-    };
+    modules: Array < Nest.AppModule > ;
 
     constructor() {
-        this.data = {};
+        this.modules = [];
     }
 }
 
@@ -22,13 +18,10 @@ class NestBootstrap implements Nest.IBootstrap {
         this.app = new NestBasic();
     }
 
-    register(step: (app ? : Nest.INest, next ? : () => void) => any): Nest.IBootstrap;
-    register(step: (app ? : Nest.INest) => Nest.IPromise < Nest.INest > ): Nest.IBootstrap;
-    register(step: (app ? : Nest.INest) => Nest.INest): Nest.IBootstrap;
-    register(steps: Array < (app ? : Nest.INest, next ? : () => void) => any > ): Nest.IBootstrap;
-    register(x: any): Nest.IBootstrap {
+    register(step: (app: Nest.INest, next: () => void) => any);
+    register(steps: Array < (app: Nest.INest, next: () => void) => any > );
+    register(x: any) {
         this.steps.push(x);
-        return this;
     }
 
     run(app: Nest.INest, steps: Array < any > , i: number, add: () => void, sub: () => void) {
@@ -40,25 +33,37 @@ class NestBootstrap implements Nest.IBootstrap {
                 this.run(app, steps, i + 1, add, sub);
             } else {
                 add();
-                var fnext = steps.length == i + 1 ? sub : () => {
+
+                var next = steps.length == i + 1 ? sub : () => {
                     this.run(app, steps, i + 1, add, sub);
                     sub();
                 };
 
-                var r = f(app, fnext);
+                var fnext = next;
+
+                var r = f(app, () => {
+                    fnext();
+                });
+
                 if (r !== true) {
+
+                    fnext = () => {};
+                    // this dance with fnext and next is done
+                    // so if they retun not true and then call done
+                    // it will do nothing and will not screw up the 
+
                     if (r === undefined || r === app)
-                        fnext();
+                        next();
                     else if (r === Object(r) && typeof r.then === "function")
-                        r.then(fnext);
+                        r.then(next);
                     else
-                        fnext();
+                        next();
                 }
             }
         }
     }
 
-    start(done ? : (bootsrap ? : Nest.IBootstrap) => any): Nest.IPromise < Nest.IBootstrap > {
+    wait(done ? : () => any): Nest.IPromise < any > {
 
         var i = 0;
         var add = () => {
@@ -71,7 +76,7 @@ class NestBootstrap implements Nest.IBootstrap {
                 i -= 1;
                 if (i === 0) {
                     this.steps = [];
-                    done(this);
+                    done();
                 }
             }
             this.run(this.app, this.steps, 0, add, sub);
@@ -79,7 +84,16 @@ class NestBootstrap implements Nest.IBootstrap {
             return undefined;
         } else {
 
-            var d = this.app.q.defer < Nest.IBootstrap > ();
+            var qreg = this.app.modules.filter((v, i, a) => {
+                return v.name === 'IAsync';
+            })[0];
+
+            if (!qreg)
+                throw "IAsync was not found in nest application";
+
+            var q: Nest.IAsync = qreg.instance;
+
+            var d = q.defer < any > ();
 
             var sub = () => {
                 i -= 1;
@@ -93,10 +107,9 @@ class NestBootstrap implements Nest.IBootstrap {
             return d.promise;
         }
     }
-    continue (): Nest.IBootstrap {
+    start () {
         this.run(this.app, this.steps, 0, () => {}, () => {});
         this.steps = [];
-        return this;
     }
 }
 
