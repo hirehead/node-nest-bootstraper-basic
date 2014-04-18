@@ -9,7 +9,7 @@ class NestBasic implements Nest.INest {
     }
 }
 
-class NestBootstrap implements Nest.IBootstrap {
+class NestBootstraperBasic implements Nest.IBootstraper {
 
     steps: Array < any > ;
     app: Nest.INest;
@@ -113,4 +113,4 @@ class NestBootstrap implements Nest.IBootstrap {
     }
 }
 
-module.exports.NestBootstrap = NestBootstrap;
+module.exports = NestBootstraperBasic;
