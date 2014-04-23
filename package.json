@@ -1,6 +1,6 @@
 {
   "name": "nest-bootstraper-basic",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "basic implementation of the nest-bootstraper",
   "main": "index.js",
   "devDependencies": {
