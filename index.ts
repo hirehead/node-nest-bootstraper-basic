@@ -69,21 +69,16 @@ class NestBootstraperBasic implements Nest.IBootstraper {
         var add = () => {
             i += 1;
         };
+        var sub;
+        var result
 
-        if (done !== undefined) {
-
-            var sub = () => {
+        if (done !== undefined)
+            sub = () => {
                 i -= 1;
-                if (i === 0) {
-                    this.steps = [];
+                if (i === 0)
                     done();
-                }
-            }
-            this.run(this.app, this.steps, 0, add, sub);
-
-            return undefined;
-        } else {
-
+            };
+        else {
             var qreg = this.app.modules.filter((v, i, a) => {
                 return v.name === 'IAsync';
             })[0];
@@ -95,19 +90,20 @@ class NestBootstraperBasic implements Nest.IBootstraper {
 
             var d = q.defer < any > ();
 
-            var sub = () => {
+            sub = () => {
                 i -= 1;
-                if (i === 0) {
-                    this.steps = [];
+                if (i === 0)
                     d.resolve(this);
-                }
             }
-            this.run(this.app, this.steps, 0, add, sub);
 
-            return d.promise;
+            result = d.promise;
         }
+
+        this.run(this.app, this.steps, 0, add, sub);
+        this.steps = [];
+        return result;
     }
-    start () {
+    start() {
         this.run(this.app, this.steps, 0, () => {}, () => {});
         this.steps = [];
     }
